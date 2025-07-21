@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>여리여리 8체질 테스트</title>
+  <style>
+    body {
+      font-family: 'Pretendard', sans-serif;
+      background: #fffafc;
+    }
+  </style>
+</head>
+<body>
+
+<div id="quiz-container" style="font-family:'Pretendard', sans-serif; max-width: 600px; margin: 50px auto; padding: 30px; border: 2px solid #fddde6; border-radius: 20px; background: #fff0f5; box-shadow: 0 4px 12px rgba(255, 192, 203, 0.3);">
+  <div style="text-align:center; margin-bottom: 20px; font-weight: bold; color: #c94d7e; font-size: 16px;">
+    🎀 여리여리 8체질 테스트🎀
+  </div>
+
+  <h2 style="text-align:center; margin-bottom: 20px; color: #c94d7e;">💗 나의 체질은?💗</h2>
+  <div id="question" style="font-size: 18px; font-weight: 600; color: #333; text-align: center; margin-bottom: 20px;"></div>
+
+  <div style="display: flex; gap: 16px; justify-content: center; margin-bottom: 20px;">
+    <button onclick="selectAnswer(1)" style="flex:1; padding: 12px 16px; background: #ffccd8; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; color: #fff; cursor: pointer;">예</button>
+    <button onclick="selectAnswer(0)" style="flex:1; padding: 12px 16px; background: #ffdbe7; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; color: #c94d7e; cursor: pointer;">아니오</button>
+  </div>
+
+  <div id="result" style="margin-top: 30px; font-size: 18px; font-weight: bold; text-align: center; color: #b14574;"></div>
+  <div id="recipe" style="margin-top: 20px; text-align: center;"></div>
+  <div id="buttons" style="margin-top: 20px; text-align: center;"></div>
+</div>
+
+<div style="text-align: center; margin-top: 30px; font-size: 13px; color: #888;">
+※ 본 테스트는 간단한 참고용입니다.<br>정확한 체질 진단은 반드시 <b>한의사</b>에게 받으시길 바랍니다.
+</div>
+
+<script>
+  const questions = [
+    { q: "나는 땀이 많고 열이 많은 편이다.", scores: { yang: 1 } },
+    { q: "나는 추위를 더 많이 타는 편이다.", scores: { eum: 1 } },
+    { q: "나는 외향적이고 활발하다.", scores: { yang: 1 } },
+    { q: "나는 쉽게 피로하고 예민하다.", scores: { eum: 1 } },
+    { q: "나는 기름진 음식을 먹어도 소화가 잘 된다.", scores: { gan: 1 } },
+    { q: "나는 폐 관련 질환(기침, 천식 등)이 자주 있다.", scores: { pae: 1 } },
+    { q: "나는 위장 장애나 더부룩함이 잦다.", scores: { bi: 1 } },
+    { q: "나는 손발이 자주 차고 허리가 약하다.", scores: { sin: 1 } },
+    { q: "나는 불면이나 불안이 자주 있다.", scores: { sin: 1 } },
+    { q: "나는 소화기계가 강한 편이다.", scores: { bi: 1 } },
+    { q: "감기에 잘 걸리며 폐활량이 약한 느낌이다.", scores: { pae: 1 } },
+    { q: "나는 화가 나면 쉽게 열이 오르거나 얼굴이 붉어진다.", scores: { gan: 1 } }
+  ];
+
+  const recipes = {
+    금양체질: "❄️ <b>여리여리차 ICE</b> -> 🌿 오후 공복에 1잔 섭취",
+    목양체질: "🔥 <b>여리여리차 HOT</b> -> 🍚 저녁 식후 따뜻하게 1잔",
+    금음체질: "❄️ <b>여리여리차 ICE</b> -> 🍋 비타민 디톡스 워터와 함께",
+    목음체질: "🔥 <b>여리여리글루타치온 + 따뜻한 차</b> -> 🍠 고구마 스프와 함께 아침 섭취",
+    토양체질: "❄️ <b>여리여리차 + 레몬슬라이스</b> -> 🍚 점심 전 섭취",
+    수양체질: "🔥 <b>여리여리글루타치온 + 따뜻한 보리차</b> -> 🌰 식사 직후 섭취",
+    토음체질: "❄️ <b>여리여리차 ICE</b> -> 🌿 오후 3시 간식처럼",
+    수음체질: "🔥 <b>여리여리글루타치온 + 유산균 따뜻한 물</b> -> 🛌 자기 전 섭취"
+  };
+
+  let index = 0;
+  const score = { yang: 0, eum: 0, gan: 0, pae: 0, bi: 0, sin: 0 };
+
+  const questionDiv = document.getElementById("question");
+  const resultDiv = document.getElementById("result");
+  const recipeDiv = document.getElementById("recipe");
+  const buttonsDiv = document.getElementById("buttons");
+
+  function showQuestion() {
+    if (index < questions.length) {
+      questionDiv.innerText = "Q" + (index + 1) + ". " + questions[index].q;
+    } else {
+      showResult();
+    }
+  }
+
+  function selectAnswer(value) {
+    const current = questions[index];
+    if (value === 1) {
+      for (let key in current.scores) {
+        score[key] += current.scores[key];
+      }
+    }
+    index++;
+    showQuestion();
+  }
+
+  function showResult() {
+    const yinYang = score.yang >= score.eum ? "양" : "음";
+
+    const organScores = {
+      gan: score.gan || 0,
+      pae: score.pae || 0,
+      bi: score.bi || 0,
+      sin: score.sin || 0
+    };
+
+    const topOrgan = Object.entries(organScores).sort((a, b) => b[1] - a[1])[0][0];
+
+    let final = "";
+
+    if (topOrgan === "gan") final = yinYang === "양" ? "금양체질" : "금음체질";
+    if (topOrgan === "pae") final = yinYang === "양" ? "목양체질" : "목음체질";
+    if (topOrgan === "bi") final = yinYang === "양" ? "토양체질" : "토음체질";
+    if (topOrgan === "sin") final = yinYang === "양" ? "수양체질" : "수음체질";
+
+    resultDiv.innerHTML = `🎀 당신은 <span style="color:#e25490">${final}</span> 입니다!`;
+
+    recipeDiv.innerHTML = `
+      <div style="margin-top: 20px; padding: 20px; background: #ffe9f0; border-radius: 16px;">
+        🌸 <b>추천 레시피:</b><br>${recipes[final] || '🌸 여리여리 제품을 상황에 맞게 조합해보세요!'}
+      </div>
+    `;
+
+    let productBtns = "";
+
+    
+    if (["금양체질", "금음체질", "목양체질", "토양체질", "토음체질"].includes(final)) {
+    
+      productBtns += `<a href="https://yeoriyeori.com/shop_view/?idx=63" target="_blank"
+        style="display:inline-block;margin:10px 5px;padding:10px 20px;background:#c94d7e;color:#fff;
+        border-radius:30px;font-weight:600;text-decoration:none;">🛒 여리여리차 구매하기</a>`;
+    } else {
+      productBtns += `<a href="https://yeoriyeori.com/shop_view/?idx=66" target="_blank"
+        style="display:inline-block;margin:10px 5px;padding:10px 20px;background:#c94d7e;color:#fff;
+        border-radius:30px;font-weight:600;text-decoration:none;">🛒 글루타치온 구매하기</a>`;
+    }
+
+    productBtns += `<br><a href="https://www.notion.so/8-231d24e264d880649b50c8e519181b06?source=copy_link" target="_blank"
+      style="display:inline-block;margin-top:15px;padding:10px 20px;background:#fff;color:#c94d7e;
+      border:1px solid #c94d7e;border-radius:30px;font-weight:600;text-decoration:none;">
+      📋 체질별 잘 맞는 식품 알아보기</a>`;
+
+    buttonsDiv.innerHTML = productBtns;
+
+    questionDiv.style.display = "none";
+    document.querySelectorAll("button").forEach(btn => btn.style.display = "none");
+  }
+
+  showQuestion();
+</script>
+
+</body>
+</html>
